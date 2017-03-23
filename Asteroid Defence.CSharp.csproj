@@ -71,7 +71,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AsteroidBehaviour.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
-    <Compile Include="Assets\Scripts\MissileDestroy.cs" />
+    <Compile Include="Assets\Scripts\MissileBehaviour.cs" />
     <Compile Include="Assets\Scripts\MouseInteraction.cs" />
     <Compile Include="Assets\Scripts\ObjectPooler.cs" />
     <Compile Include="Assets\Scripts\TurretBehaviour.cs" />

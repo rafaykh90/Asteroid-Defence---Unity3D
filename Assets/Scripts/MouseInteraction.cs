@@ -4,9 +4,9 @@ using System.Collections;
 public class MouseInteraction : MonoBehaviour {
 
     private AsteroidBehaviour AB;
-    public Vector3 gameObjectSreenPoint;
-    public Vector3 mousePreviousLocation;
-    public Vector3 mouseCurLocation;
+    private Vector3 gameObjectSreenPoint;
+    private Vector3 mousePreviousLocation;
+    private Vector3 mouseCurLocation;
     private Rigidbody rigidbody;
 
     void Awake() {

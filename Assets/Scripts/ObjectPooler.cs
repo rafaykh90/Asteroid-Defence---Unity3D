@@ -21,7 +21,7 @@ public class ObjectPooler : MonoBehaviour {
         pooledObjects = new List<GameObject>();
         for (int i = 0; i < pooledAmount; i++)
         {
-            GameObject obj = GameObject.Instantiate(pooledObject) as GameObject;
+            GameObject obj = (GameObject)GameObject.Instantiate(pooledObject);
             pooledObjects.Add(obj);
         }
 	}

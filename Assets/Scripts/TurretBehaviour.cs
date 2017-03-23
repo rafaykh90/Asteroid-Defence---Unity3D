@@ -22,11 +22,11 @@ public class TurretBehaviour : MonoBehaviour {
 
     }
 
+
 	public bool TrajectoryWithinSafetyZone(Vector3 asteroidPosition, Vector3 asteroidVelocity){
         Vector3 difference = gameObject.transform.position - asteroidPosition;
 		float dist = difference.sqrMagnitude;
         if (dist < SafeDistance) {
-            print("TrajectoryWithinSafetyZone  " + dist);
             return true;
 		}
 
@@ -36,14 +36,14 @@ public class TurretBehaviour : MonoBehaviour {
 	public void ShootMissile(Transform asteroidTransfrom){
         Vector3 interceptPosition = CalculateMissileVelocity(asteroidTransfrom.position, asteroidTransfrom.GetComponent<Rigidbody>().velocity);
 
-        transform.LookAt (interceptPosition); //Since there shouldnt be any targeting delay therefore I have used Unity's Built in function
+        transform.LookAt (interceptPosition); //Since there shouldn't be any targeting delay therefore I have used Unity's Built in function
 
         //Instantiating Missile at the Location of turret.
         Vector3 missilePosition = shootPoint.transform.position;
 		Quaternion missileRotation = shootPoint.rotation;
 		GameObject missile = GameObject.Instantiate (MissilePrefab, missilePosition, missileRotation) as GameObject;
 		Rigidbody rigidbody = missile.GetComponent<Rigidbody> ();
-        rigidbody.velocity = interceptPosition * MissileSpeed;//CalculateMissileVelocity(asteroidTransfrom.position, asteroidTransfrom.GetComponent<Rigidbody>().velocity);
+        rigidbody.velocity = interceptPosition * MissileSpeed;
 	}
 
 
@@ -55,11 +55,11 @@ public class TurretBehaviour : MonoBehaviour {
         */
     private Vector3 CalculateMissileVelocity(Vector3 asteroidPosition, Vector3 asteroidVelocity) {
         
-        //Since we have Zero acceleration so, I have used Law cosines to calculate cosTheta, which will be used to calculate time.
+        //Since we have no acceleration so, I have used Law of cosines to calculate cosTheta, which will be used to calculate time.
         Vector3 TargetOffset = transform.position - asteroidPosition;
         float cosTheta = Vector3.Dot(TargetOffset.normalized, asteroidVelocity);
         float targetSpeed = asteroidVelocity.magnitude;
-        float distanceBetweenObjects = Vector3.Distance(transform.position, asteroidPosition);//, transform.position);
+        float distanceBetweenObjects = Vector3.Distance(transform.position, asteroidPosition);
         float missileSpeedSqr = Mathf.Pow(MissileSpeed, 2);
         float targerSpeedSqr = Mathf.Pow(targetSpeed, 2);
         float squaredDistance = Mathf.Pow(distanceBetweenObjects, 2);
