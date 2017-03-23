@@ -17,9 +17,9 @@ public class AsteroidBehaviour : MonoBehaviour
         GM = GameObject.Find("GameManager").GetComponent<GameManager>();
         rigidbody = gameObject.GetComponent<Rigidbody>();
         StartMovement();
+        turretBehaviour = GM.Turret.GetComponent<TurretBehaviour>();
         if (turretBehaviour != null)
         {
-            turretBehaviour = GM.Turret.GetComponent<TurretBehaviour>();
             //Check if Asteroid is instantiated with in safezone instantly shoot at it.
             if (turretBehaviour.TrajectoryWithinSafetyZone(transform.position, gameObject.GetComponent<Rigidbody>().velocity))
             {

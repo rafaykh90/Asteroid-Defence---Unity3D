@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
 
     public void AsteroidDestroyed()
     {
+        //Little delay in re-enabling the asteroid from the pool.
         Invoke("CreateAsteroid", 3);
     }
 
