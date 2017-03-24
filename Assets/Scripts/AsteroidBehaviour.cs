@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
 
 public class AsteroidBehaviour : MonoBehaviour
 {
@@ -9,7 +7,7 @@ public class AsteroidBehaviour : MonoBehaviour
     private Rigidbody rigidbody;
     private Vector3 direction;
     [HideInInspector]
-    public float Speed = 0.5f;
+    public float Speed = 1.0f;
     private TurretBehaviour turretBehaviour;
 
     void OnEnable()
@@ -17,10 +15,48 @@ public class AsteroidBehaviour : MonoBehaviour
         GM = GameObject.Find("GameManager").GetComponent<GameManager>();
         rigidbody = gameObject.GetComponent<Rigidbody>();
         StartMovement();
-        turretBehaviour = GM.Turret.GetComponent<TurretBehaviour>();
-        if (turretBehaviour != null)
+        if (GM.Turret != null)
         {
-            //Check if Asteroid is instantiated with in safezone instantly shoot at it.
+            turretBehaviour = GM.Turret.GetComponent<TurretBehaviour>();
+        }
+
+        InvokeRepeating("CheckIfInside", 0.0f, 1.0f);
+        InvokeRepeating("CheckifTooFar", 0.0f, 1.0f);
+    }
+
+    void OnDisable()
+    {
+        /*
+        We have to cancel the invoke otherwise the turret will keep on shooting at the position of the asteroid even after it
+        has been disabled.
+        */
+        CancelInvoke();
+    }
+
+    /// <summary>
+    /// Checking if the asteroid is too far from the Turret (i.e. possibly out of the screen) then disable the
+    /// asteroid and re-enable at a new location closer to the turret.
+    /// </summary>
+    void CheckifTooFar()
+    {
+        if (GM.Turret != null)
+        {
+            if (Vector3.Distance(gameObject.transform.position, GM.Turret.transform.position) > 8)
+            {
+                DestroyMe();
+            }
+        }
+    }
+
+    /// <summary>
+    /// This method Checks if Asteroid is instantiated or flied into the safezone. If so, then instantly shoot at it.
+    /// </summary>
+    void CheckIfInside()
+    {
+        //Check if the turret hasn't been destroyed and the specific asteroid is still active in the hierarchy.
+        if (gameObject.activeSelf && GM.Turret != null)
+        {
+            turretBehaviour = GM.Turret.GetComponent<TurretBehaviour>();
             if (turretBehaviour.TrajectoryWithinSafetyZone(transform.position, gameObject.GetComponent<Rigidbody>().velocity))
             {
                 ShootMe();
@@ -28,21 +64,16 @@ public class AsteroidBehaviour : MonoBehaviour
         }
     }
 
-    void OnStart()
-    {
-    }
-
-    void FixedUpdate()
-    {
-        if (Vector3.Distance(gameObject.transform.position, turretBehaviour.gameObject.transform.position) > 8)
-        {
-            DestroyMe();
-        }
-    }
-
-    // Use this for initialization
+    /// <summary>
+    /// When an asteroid is enabled in the screen it is assigned a random position on the screen and a velocty with
+    /// constant speed in random direction is applied.
+    /// </summary>
     void StartMovement()
     {
+        /* Dividing the screen in four quadrants and assigning a random position within the quadrant to the asteroid.
+        Reason for dividing is that the asteroid should be assigned a position such that it collides with the turret instantly
+        when enabled. 
+        */
         Vector3 position1 = new Vector3(UnityEngine.Random.Range(-5, -1), UnityEngine.Random.Range(-5, -1), 0);
         Vector3 position2 = new Vector3(UnityEngine.Random.Range(1, 5), UnityEngine.Random.Range(1, 5), 0);
         Vector3 position3 = new Vector3(UnityEngine.Random.Range(-5, -1), UnityEngine.Random.Range(1, 5), 0);
@@ -68,11 +99,13 @@ public class AsteroidBehaviour : MonoBehaviour
                 break;
         }
         //Start moving Asteroid in Random Direction at Constant Speed
-        direction = (new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), UnityEngine.Random.Range(-1.0f, 1.0f), 0.0f)).normalized;
-        rigidbody.velocity = direction * Speed;
+        direction = (new Vector3(UnityEngine.Random.Range(-Speed, Speed), UnityEngine.Random.Range(-Speed, Speed), 0.0f)).normalized;
+        rigidbody.velocity = direction;;
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// This method is called if the asteroid is hit by the missile or it hits the turret.
+    /// </summary>
     public void DestroyMe()
     {
         //Game object is disabled, since we are using the objects from the pool and not destroying the asteroids.
@@ -80,6 +113,12 @@ public class AsteroidBehaviour : MonoBehaviour
         GM.AsteroidDestroyed();
     }
 
+
+    /// <summary>
+    /// Basic collision checking.
+    /// Collision with the turret.
+    /// </summary>
+    /// <param name="ColObject"></param>
     void OnCollisionEnter(Collision ColObject)
     {
         if (ColObject.gameObject.tag.Equals("Turret"))
@@ -89,29 +128,15 @@ public class AsteroidBehaviour : MonoBehaviour
             GM.GameOver();
             DestroyMe();
         }
-        else if (ColObject.gameObject.tag.Equals(gameObject.tag))
-        {
-            //Asteroids Collides with each other
-            DestroyMe(); //Other Asteroid will be destroyed itself since both Asteroids have same Collision handling.
-        }
     }
 
-    //Trigger Collider is used so that we wouldn't have to check every asteroid everytime if its in the SafeZone.
-    //The Asteroid will itself call 
-    void OnTriggerEnter(Collider ColObj)
-    {
-        if (ColObj.tag.Equals("Turret"))
-        {
-            print("Inside Safe Zone from Asteroid");
-            //Double Checking if the Asteroid is in the safetyZone
-            if (turretBehaviour.TrajectoryWithinSafetyZone(transform.position, gameObject.GetComponent<Rigidbody>().velocity))
-            {
-                print("Can shoot returns true");
-                ShootMe();
-            }
-        }
-    }
-
+    /// <summary>
+    /// This method calls the turret ShootMissile method and the asteroid's transform which is to be shot down is passed as the
+    /// parameter.
+    /// The reason of calling ShootMissile method from the asteroid is that we wouldn't have to continuously check every active asteroid
+    /// in the reason if it is in the safezone or not.The one which enters the safezone or is instantiated in the safezone will call
+    /// this method on its own.
+    /// </summary>
     private void ShootMe()
     {
         turretBehaviour.ShootMissile(transform);

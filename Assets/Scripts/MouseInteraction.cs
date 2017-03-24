@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class MouseInteraction : MonoBehaviour {
 
-    private AsteroidBehaviour AB;
+    private AsteroidBehaviour astroBehaviour;
     private Vector3 gameObjectSreenPoint;
     private Vector3 mousePreviousLocation;
     private Vector3 mouseCurLocation;
     private Rigidbody rigidbody;
+    private Vector3 directionVector;
 
     void Awake() {
-        AB = GetComponent<AsteroidBehaviour>();
+        astroBehaviour = GetComponent<AsteroidBehaviour>();
         rigidbody = GetComponent<Rigidbody>();
     }
     void OnMouseDown()
@@ -21,20 +21,17 @@ public class MouseInteraction : MonoBehaviour {
         mousePreviousLocation = new Vector3(Input.mousePosition.x, Input.mousePosition.y, gameObjectSreenPoint.z);
     }
 
-    public Vector3 force;
-    public Vector3 objectCurrentPosition;
-    public Vector3 objectTargetPosition;
-    public float topSpeed = 10;
-
     void OnMouseDrag()
     {
-        mouseCurLocation = new Vector3(Input.mousePosition.x, Input.mousePosition.y, gameObjectSreenPoint.z);
-        force = (mouseCurLocation - mousePreviousLocation).normalized;//Changes the force to be applied
+        //We calculate the mouse movement and calculate the direction of the vector which will be assigned to the asteroid.
+        mouseCurLocation = new Vector3(Input.mousePosition.x * astroBehaviour.Speed, Input.mousePosition.y * astroBehaviour.Speed, gameObjectSreenPoint.z);
+        directionVector = (mouseCurLocation - mousePreviousLocation).normalized;
         mousePreviousLocation = mouseCurLocation;
     }
 
     public void OnMouseUp()
     {
-        rigidbody.velocity = force * AB.Speed;
+        //Asteroid's velocity is changed according to the direction vector calculated through mouse movement.
+        rigidbody.velocity = directionVector;
     }
 }

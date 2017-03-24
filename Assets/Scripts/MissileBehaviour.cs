@@ -3,6 +3,8 @@ using System.Collections;
 
 public class MissileBehaviour : MonoBehaviour {
 
+    public GameObject explosionParticle;
+
 	// Use this for initialization
 	void OnEnable () {
         //If a Missile in case misses the asteroid it will be destroyed after 5 secs.
@@ -13,7 +15,8 @@ public class MissileBehaviour : MonoBehaviour {
     {
         if (ColObject.gameObject.tag.Equals("Asteroid"))
         {
-            //Instantiate Explosion Particle
+            GameObject expParticle = (GameObject)GameObject.Instantiate(explosionParticle, transform.position, Quaternion.identity);
+            Destroy(expParticle, 2);
             ColObject.gameObject.GetComponent<AsteroidBehaviour>().DestroyMe();
             Destroy(gameObject);
         }

@@ -1,28 +1,19 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class TurretBehaviour : MonoBehaviour {
 
 	public GameObject MissilePrefab;
  	public float SafeDistance = 8.5f;
 	public Transform shootPoint;
-    private float MissileSpeed = 3;
+    private float MissileSpeed = 3.0f;
 
-	void Awake(){
-		
-	}
-
-	
-	void Start () {
-
-	}
-	
-	// Update is called once per frame
-	void Update () {
-
-    }
-
-
+    /// <summary>
+    /// This method Calculated distance between the turret and the asteroid. If the distance is with in the safezone then it 
+    /// returns true otherwise false.
+    /// </summary>
+    /// <param name="asteroidPosition"></param>
+    /// <param name="asteroidVelocity"></param>
+    /// <returns></returns>
 	public bool TrajectoryWithinSafetyZone(Vector3 asteroidPosition, Vector3 asteroidVelocity){
         Vector3 difference = gameObject.transform.position - asteroidPosition;
 		float dist = difference.sqrMagnitude;
@@ -33,9 +24,13 @@ public class TurretBehaviour : MonoBehaviour {
 		return false;
 	}
 
+    /// <summary>
+    /// Shoots Missile towards the asteroid transform provided in the parameter. This method calls the CalculateMissileVelocity
+    /// method to calculate the vector of the Missile where as the Speed of the missile is constant.
+    /// </summary>
+    /// <param name="asteroidTransfrom"></param>
 	public void ShootMissile(Transform asteroidTransfrom){
         Vector3 interceptPosition = CalculateMissileVelocity(asteroidTransfrom.position, asteroidTransfrom.GetComponent<Rigidbody>().velocity);
-
         transform.LookAt (interceptPosition); //Since there shouldn't be any targeting delay therefore I have used Unity's Built in function
 
         //Instantiating Missile at the Location of turret.
@@ -47,12 +42,16 @@ public class TurretBehaviour : MonoBehaviour {
 	}
 
 
-    /*
-        The method below calculates the position at which the target asteroid and the missile will collide.
-        Since both objects are moving at Constant Speed therefore we can calculate the time based on the turret 
-        asteroid's position and velocity. We are only calculating the direction of the Vector in which the missile
-        is going to be shot.
-        */
+
+    /// <summary>
+    /// The method below calculates the position at which the target asteroid and the missile will collide.
+    /// Since both objects are moving at Constant Speed therefore we can calculate the time based on the turret
+    /// asteroid's position and velocity. We are only calculating the direction of the Vector in which the missile
+    /// is going to be shot.
+    /// </summary>
+    /// <param name="asteroidPosition"></param>
+    /// <param name="asteroidVelocity"></param>
+    /// <returns></returns>
     private Vector3 CalculateMissileVelocity(Vector3 asteroidPosition, Vector3 asteroidVelocity) {
         
         //Since we have no acceleration so, I have used Law of cosines to calculate cosTheta, which will be used to calculate time.

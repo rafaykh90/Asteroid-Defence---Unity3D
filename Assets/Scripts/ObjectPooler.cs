@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// This is used to create pool for asteroid. But this can also be used to create a pool for any gameobject by dragging a new
+/// prefab in the hierarchy and assigning that Gameobject to the pooledObject in the inspector.
+/// </summary>
 public class ObjectPooler : MonoBehaviour {
 
     public static ObjectPooler current;
@@ -16,7 +19,6 @@ public class ObjectPooler : MonoBehaviour {
         current = this;
     }
 
-	// Use this for initialization
 	void Start () {
         pooledObjects = new List<GameObject>();
         for (int i = 0; i < pooledAmount; i++)
@@ -26,6 +28,10 @@ public class ObjectPooler : MonoBehaviour {
         }
 	}
 	
+    /// <summary>
+    /// Returns a Gameobject from the pool which is inactive in the hierarchy. This method is called when a Gameobject from the
+    /// pool is required.
+    /// </summary>
     public GameObject getPooledObject()
     {
         for (int i = 0; i < pooledObjects.Count; i++)
