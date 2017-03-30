@@ -8,21 +8,38 @@ public class TurretBehaviour : MonoBehaviour {
     private float MissileSpeed = 3.0f;
 
     /// <summary>
-    /// This method Calculated distance between the turret and the asteroid. If the distance is with in the safezone then it 
-    /// returns true otherwise false.
+    /// This method Calculates the trajectory of the asteroid with the help of its position and velocity. I have calculated 
+    /// the minimum time in which the asteroid will hit the turret if it was moving in turret's direction. Then I have
+    /// calculated if the asteroid is moving towards the turret or if its moving away by anticipating the position of the 
+    /// asteroid after half of the minimum time. Finally, if the asteroid is moving towards the turret then we calculate the
+    /// time after which the asteroid will enter the safezone i.e. timeToHit. (Missile is shot after this time)
     /// </summary>
     /// <param name="asteroidPosition"></param>
     /// <param name="asteroidVelocity"></param>
+    /// <param name="timeToHit"></param>
     /// <returns></returns>
-	public bool TrajectoryWithinSafetyZone(Vector3 asteroidPosition, Vector3 asteroidVelocity){
-        Vector3 difference = gameObject.transform.position - asteroidPosition;
-		float dist = difference.sqrMagnitude;
-        if (dist < SafeDistance) {
-            return true;
-		}
-
-		return false;
-	}
+	public bool TrajectoryWithinSafetyZone(Vector3 asteroidPosition, Vector3 asteroidVelocity, ref float timeToHit)
+    {
+        float distance = Vector3.Distance(transform.position, asteroidPosition);
+        float minTime = distance / asteroidVelocity.magnitude;
+        float timeInterval = minTime / 10;
+        float tempTime = 0;
+        Vector3 distanceAfterHalfTime = asteroidPosition + (asteroidVelocity * (minTime / 2));
+        if (Vector3.Distance(transform.position, distanceAfterHalfTime) < distance)
+        {
+            do
+            {
+                tempTime += timeInterval;
+                Vector3 tempPos = asteroidPosition + (asteroidVelocity * tempTime);
+                if (Vector3.Distance(transform.position, tempPos) <= SafeDistance)
+                {
+                    timeToHit = tempTime;
+                    return true;
+                }
+            } while (tempTime <= minTime);
+        }
+        return false;
+    }
 
     /// <summary>
     /// Shoots Missile towards the asteroid transform provided in the parameter. This method calls the CalculateMissileVelocity
@@ -87,5 +104,18 @@ public class TurretBehaviour : MonoBehaviour {
         //Calculating the intercepting position for the Targer asteroid and the Missile.
         Vector3 interceptLocation = (asteroidPosition + asteroidVelocity * time - transform.position) / time;
         return interceptLocation.normalized;
+    }
+
+    /// <summary>
+    /// Simply calculates the distance between the turret and the asteroid and returns true if the distance is less than than
+    /// the safezone distance i.e. the asteroid is in the safezone
+    /// </summary>
+    /// <param name="asteroidPosition"></param>
+    /// <returns></returns>
+    public bool distanceIsLess(Vector3 asteroidPosition) {
+        float distance = Vector3.Distance(transform.position, asteroidPosition);
+        if (distance <= SafeDistance)
+            return true;
+        return false;
     }
 }

@@ -9,6 +9,7 @@ public class AsteroidBehaviour : MonoBehaviour
     [HideInInspector]
     public float Speed = 1.0f;
     private TurretBehaviour turretBehaviour;
+    private float timeToHit = 0;
 
     void OnEnable()
     {
@@ -20,8 +21,24 @@ public class AsteroidBehaviour : MonoBehaviour
             turretBehaviour = GM.Turret.GetComponent<TurretBehaviour>();
         }
 
-        InvokeRepeating("CheckIfInside", 0.0f, 1.0f);
+        if (turretBehaviour != null) {
+            if (turretBehaviour.distanceIsLess(transform.position))
+                ShootMe();
+            else
+                checkTrajectory();
+        }
+
         InvokeRepeating("CheckifTooFar", 0.0f, 1.0f);
+    }
+
+    public void checkTrajectory()
+    {
+        CancelInvoke("ShootMe");
+        if (turretBehaviour.TrajectoryWithinSafetyZone(transform.position, rigidbody.velocity, ref timeToHit))
+        {
+            Invoke("ShootMe", timeToHit);
+            //InvokeRepeating("CheckIfInside", 0.0f, 1.0f);
+        }
     }
 
     void OnDisable()
@@ -51,18 +68,18 @@ public class AsteroidBehaviour : MonoBehaviour
     /// <summary>
     /// This method Checks if Asteroid is instantiated or flied into the safezone. If so, then instantly shoot at it.
     /// </summary>
-    void CheckIfInside()
-    {
-        //Check if the turret hasn't been destroyed and the specific asteroid is still active in the hierarchy.
-        if (gameObject.activeSelf && GM.Turret != null)
-        {
-            turretBehaviour = GM.Turret.GetComponent<TurretBehaviour>();
-            if (turretBehaviour.TrajectoryWithinSafetyZone(transform.position, gameObject.GetComponent<Rigidbody>().velocity))
-            {
-                ShootMe();
-            }
-        }
-    }
+    //void CheckIfInside()
+    //{
+    //    //Check if the turret hasn't been destroyed and the specific asteroid is still active in the hierarchy.
+    //    if (gameObject.activeSelf && GM.Turret != null)
+    //    {
+    //        turretBehaviour = GM.Turret.GetComponent<TurretBehaviour>();
+    //        if (turretBehaviour.TrajectoryWithinSafetyZone(transform.position, gameObject.GetComponent<Rigidbody>().velocity))
+    //        {
+    //            ShootMe();
+    //        }
+    //    }
+    //}
 
     /// <summary>
     /// When an asteroid is enabled in the screen it is assigned a random position on the screen and a velocty with
@@ -106,11 +123,11 @@ public class AsteroidBehaviour : MonoBehaviour
     /// <summary>
     /// This method is called if the asteroid is hit by the missile or it hits the turret.
     /// </summary>
-    public void DestroyMe()
+    public void DestroyMe(string destroyedBy = "")
     {
         //Game object is disabled, since we are using the objects from the pool and not destroying the asteroids.
         gameObject.SetActive(false);
-        GM.AsteroidDestroyed();
+        GM.AsteroidDestroyed(destroyedBy);
     }
 
 
@@ -128,6 +145,13 @@ public class AsteroidBehaviour : MonoBehaviour
             GM.GameOver();
             DestroyMe();
         }
+
+        else if (ColObject.gameObject.tag.Equals(gameObject.tag))
+        {
+            //Asteroid has hit another asteroid
+            if (turretBehaviour != null)
+                checkTrajectory();
+        }
     }
 
     /// <summary>
@@ -139,7 +163,8 @@ public class AsteroidBehaviour : MonoBehaviour
     /// </summary>
     private void ShootMe()
     {
-        turretBehaviour.ShootMissile(transform);
+        if (turretBehaviour != null)
+            turretBehaviour.ShootMissile(transform);
     }
 
 }

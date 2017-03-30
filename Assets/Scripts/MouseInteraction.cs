@@ -33,5 +33,6 @@ public class MouseInteraction : MonoBehaviour {
     {
         //Asteroid's velocity is changed according to the direction vector calculated through mouse movement.
         rigidbody.velocity = directionVector;
+        astroBehaviour.checkTrajectory();
     }
 }

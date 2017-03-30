@@ -17,7 +17,7 @@ public class MissileBehaviour : MonoBehaviour {
         {
             GameObject expParticle = (GameObject)GameObject.Instantiate(explosionParticle, transform.position, Quaternion.identity);
             Destroy(expParticle, 2);
-            ColObject.gameObject.GetComponent<AsteroidBehaviour>().DestroyMe();
+            ColObject.gameObject.GetComponent<AsteroidBehaviour>().DestroyMe(gameObject.tag);
             Destroy(gameObject);
         }
     }
